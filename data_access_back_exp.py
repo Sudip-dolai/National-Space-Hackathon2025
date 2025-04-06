@@ -204,7 +204,7 @@ def checkWaste(itemId):
 
 
 # placement
-@app.post("/placement/")
+@app.post("/api/placement")
 async def placement(data: itemData):
     global selectedContIndex
     
@@ -270,7 +270,7 @@ async def placement(data: itemData):
     return {"success": True, "placement": placementDetail}
 
 
-@app.post("/place/")
+@app.post("/api/place")
 async def place(data: placeData):
     if data.userId != originalUserId :
         return {"success": False, "message": "Wrong user Id"}
@@ -343,7 +343,7 @@ async def addcont(data: containerData):
 
 
 
-@app.get("/search/{searchData}")
+@app.get("/api/search{searchData}")
 async def search(searchData: str):
     searchItemName = ""
     if searchData[0:3] == "id-":
@@ -383,7 +383,7 @@ async def search(searchData: str):
 
 
 
-@app.post("/retrieve/")
+@app.post("/api/retrieve")
 async def retrieve(data: retrieveData):
     usageLimit = placeDatabase[data.itemId]["itemDetail"]["usageLimit"]
     usageLimit -= 1
@@ -416,7 +416,7 @@ async def retrieve(data: retrieveData):
     
 
 
-@app.get("/waste_identify/")
+@app.get("/api/waste/identify")
 async def waste_identify():
     for item in placeDatabase:
         checkWaste(item)
@@ -424,7 +424,7 @@ async def waste_identify():
     return {"wasteList": wasteitemList}
 
 
-@app.get("/export_arrangement_csv/")
+@app.get("/api/export/arrangement")
 async def export_arrangement_csv():
 
     filename = "Current_arrangement_" + str(now.year) + str(now.month) + str(now.day) + "_" + str(now.hour) + str(now.minute) + str(now.second) + ".csv"
@@ -437,7 +437,7 @@ async def export_arrangement_csv():
 
 
 
-@app.post("/upload_item_csv/")
+@app.post("/api/import/items")
 async def upload_item_csv(file: UploadFile = File(...)):
     content = await file.read()                      # Read file bytes
     decoded = content.decode('utf-8')                # Decode to string
@@ -517,7 +517,7 @@ async def upload_item_csv(file: UploadFile = File(...)):
 
 
 
-@app.post("/upload_cont_csv/")
+@app.post("/api/import/containers")
 async def upload_cont_csv(file: UploadFile = File(...)):
     content = await file.read()                      # Read file bytes
     decoded = content.decode('utf-8')                # Decode to string
@@ -541,7 +541,7 @@ async def upload_cont_csv(file: UploadFile = File(...)):
 
 
 
-@app.post("/log_file_csv/")
+@app.post("/api/logs")
 def log_file_csv(data: logDate):
     filename = "Logfile_" + str(now.year) + str(now.month) + str(now.day) + "_" + str(now.hour) + str(now.minute) + str(now.second) + ".csv"
     
