@@ -311,7 +311,7 @@
             preferredZone: document.getElementById("preferredZone").value
         };
 
-        const response = await fetch("http://127.0.0.1:8000/placement/", {
+        const response = await fetch("http://127.0.0.1:8000/api/placement", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -336,7 +336,7 @@
             position: placementData.placement.position
         };
 
-        const response = await fetch("http://127.0.0.1:8000/place/", {
+        const response = await fetch("http://127.0.0.1:8000/api/place", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -425,8 +425,6 @@
     }
 
 
-
-
     async function retrieve() {
         const today = new Date().toISOString();
         let retrieveReqData = {
@@ -435,7 +433,7 @@
             timestamp: today
         };
 
-        const response = await fetch("http://127.0.0.1:8000/retrieve/", {
+        const response = await fetch("http://127.0.0.1:8000/api/retrieve", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -452,7 +450,7 @@
         document.getElementById("popupBox2").style.display = "block";
         document.getElementById("wasteDetails").innerText = "Fetching data...";
 
-        const response = await fetch("http://127.0.0.1:8000/waste_identify/");
+        const response = await fetch("http://127.0.0.1:8000/api/waste/identify");
         const data = await response.json();
         console.log(data);
         document.getElementById("wasteDetails").innerText = JSON.stringify(data.wasteList, null, 2);
@@ -461,7 +459,7 @@
 
 
     async function exportArrangementCsv() {
-        const response = await fetch("http://127.0.0.1:8000/export_arrangement_csv/");
+        const response = await fetch("http://127.0.0.1:8000/api/export/arrangement");
         const blob = await response.blob();
 
         const now = new Date();
@@ -479,7 +477,7 @@
         const formData = new FormData();
         formData.append("file", fileInput.files[0]);
 
-        const response = await fetch("http://127.0.0.1:8000/upload_item_csv/", {
+        const response = await fetch("http://127.0.0.1:8000/api/import/items", {
             method: "POST",
             body: formData
         });
@@ -494,7 +492,7 @@
         const formData = new FormData();
         formData.append("file", fileInput.files[0]);
 
-        const response = await fetch("http://127.0.0.1:8000/upload_cont_csv/", {
+        const response = await fetch("http://127.0.0.1:8000/api/import/containers", {
             method: "POST",
             body: formData
         });
@@ -510,7 +508,7 @@
             endDate: document.getElementById("logEndDate").value
         }
 
-        const response = await fetch("http://127.0.0.1:8000/log_file_csv/", {
+        const response = await fetch("http://127.0.0.1:8000/api/logs", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -528,24 +526,6 @@
         link.click();
 
     }
-
-
-
-
-
-    // async function searchItem() {
-    //     let query = document.getElementById("searchQuery").value;
-    //     // const userId = document.getElementById("userIdInput").value;
-
-    //     const response = await fetch(`http://127.0.0.1:8000/get-user/${query}`);
-    //     const data = await response.json();
-    //     document.getElementById("searchResponse").innerText = JSON.stringify(data, null, 2);
-
-
-
-
-
-
 
 
 </script>
