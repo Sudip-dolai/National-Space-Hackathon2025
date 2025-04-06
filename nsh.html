@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Inventory Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #searchType {
+            margin: 3px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+
+        #searchQuery {
+            margin: 3px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .form-group label,
+        .form-group input,
+        .form-group select {
+            flex: 1;
+            margin: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .info-text {
+            font-size: 16px;
+            color: rgb(5, 131, 89);
+        }
+
+        .user-guide {
+            font-size: 16px;
+            color: rgb(6, 112, 148);
+        }
+
+        .or {
+            color: rgb(6, 148, 41);
+        }
+
+        .upload-csv {
+            border-radius: 5px;
+            border: #666666 solid;
+            padding: 5px 0 5px 10px;
+            margin: 5px;
+            text-align: center;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 30%;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #searchResult {
+            margin-top: 20px;
+            font-weight: bold;
+            color: green;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        .expired {
+            color: red;
+            font-weight: bold;
+        }
+
+        #logBtn {
+            background-color: rgb(0, 136, 100);
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px;
+        }
+
+        #logBtn:hover {
+            background-color: rgb(0, 84, 61);
+            transition: 0.2s;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .popup-content {
+            background: #fff;
+            padding: 20px;
+            width: 300px;
+            margin: 100px auto;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .closeBtn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Space Inventory Management</h1>
+    <div class="container">
+        <h2>Add New Item</h2>
+        <h3>Item Details</h3>
+        <p class="user-guide">Add items manually here</p>
+        <form id="addItemForm">
+            <div class="form-group">
+                <label>Item ID</label>
+                <input type="text" id="itemId" required>
+
+                <label>Name</label>
+                <input type="text" id="itemName" required>
+            </div>
+            <div class="form-group">
+                <label>Width (cm)</label>
+                <input type="number" id="itemWidth" required>
+
+                <label>Depth (cm)</label>
+                <input type="number" id="itemDepth" required>
+
+                <label>Height (cm)</label>
+                <input type="number" id="itemHeight" required>
+            </div>
+            <div class="form-group">
+                <label>Mass (kg)</label>
+                <input type="number" id="itemMass" required>
+
+                <label>Priority (1-100)</label>
+                <input type="number" id="itemPriority" min="1" max="100" required>
+
+                <label>Expiry Date</label>
+                <input type="date" id="expiryDate" required>
+            </div>
+            <div class="form-group">
+                <label>Usage Limit</label>
+                <input type="number" id="usageLimit" required>
+            </div>
+            <div class="form-group">
+                <label>Preferred Zone</label>
+                <input type="text" id="preferredZone" required>
+                <!-- <select id="preferredZone">
+                    <option value="Crew Quarters">Crew Quarters</option>
+                    <option value="Airlock">Airlock</option>
+                    <option value="Laboratory">Laboratory</option>
+                </select> -->
+            </div>
+
+            <p id="message" style="text-align: start;"></p>
+            <button type="button" onclick="placement()">Add Item</button>
+            <div class="form-group">
+                <label>user Id</label>
+                <input type="text" id="userIdPlace" required>
+            </div>
+            <p id="authentication"></p>
+            <button type="button" onclick="place()">Place Item</button>
+            <p id="placementResult"></p>
+            <h3 class="or">⟪ OR ⟫</h3>
+            <p class="user-guide">Upload CSV file of a set of <b>Items</b> in combo</p>
+            <input type="file" class="upload-csv" id="upload-item-CSV">
+            <button type="button" onclick="uploadItemCSV()">Upload CSV</button>
+            <p class="info-text">Download item arrangement details</p>
+            <button type="button" onclick="exportArrangementCsv()">Download</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <form id="addItemForm">
+            <h3>Cotainer Details</h3>
+            <p class="user-guide">Add containers manually here</p>
+            <div class="form-group">
+                <label>Container ID</label>
+                <input type="text" id="containerId" required>
+
+                <label>Zone</label>
+                <input type="text" id="contName" required>
+            </div>
+            <div class="form-group">
+                <label>Width (cm)</label>
+                <input type="number" id="contWidth" required>
+
+                <label>Depth (cm)</label>
+                <input type="number" id="contDepth" required>
+
+                <label>Height (cm)</label>
+                <input type="number" id="contHeight" required>
+            </div>
+            <button type="button" onclick="addContainer()">Add Container</button>
+            <h3 class="or">⟪ OR ⟫</h3>
+            <p class="user-guide">Upload CSV file of a set of <b>Containers</b> in combo</p>
+            <input type="file" class="upload-csv" id="upload-cont-CSV">
+            <button type="button" onclick="uploadContCSV()">Upload CSV</button>
+        </form>
+    </div>
+    <div class="container">
+        <h2>Search Item</h2>
+        <h3>Select Search Type </h3>
+        <select id="searchType">
+            <option value="name">Search by Name</option>
+            <option value="id">Search by Id</option>
+        </select>
+        <input type="text" id="searchQuery" placeholder="Enter Item ID or Name">
+        <p id="searchResponse"></p>
+        <button onclick="searchItem()">Search</button>
+        <div id="searchResult"></div>
+
+        <div id="popupBox" class="popup">
+            <div class="popup-content">
+                <span class="closeBtn" onclick="closePopup()">&times;</span>
+                <h3>Retrieval Process</h3>
+                <div id="retrievalDetails">Loading...</div>
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label>user Id</label>
+            <input type="text" id="userIdRetrieve" required>
+        </div>
+        <p id="authentication2"></p>
+        <button type="button" onclick="retrieve()">Retrieve</button>
+
+        <div class="form-group" style="margin-top: 30px;">
+            <label>Start Date</label>
+            <input type="date" id="logStartDate" required>
+            <label>End Date</label>
+            <input type="date" id="logEndDate" required>
+            <button type="button" id="logBtn" onclick="logFileCsv()">Download log data</button>
+        </div>
+
+    </div>
+    <div class="container">
+        <h2>Waste Management</h2>
+        <button onclick="waste_identify()">Check Waste</button>
+
+        <div id="popupBox2" class="popup">
+            <div class="popup-content">
+                <span class="closeBtn" onclick="closePopup()">&times;</span>
+                <h3>Wasted Item List</h3>
+                <div id="wasteDetails">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<!-- Script part -->
+<script>
+    let placementData;
+    async function placement() {
+        let itemData = {
+            itemId: document.getElementById("itemId").value,
+            name: document.getElementById("itemName").value,
+            width: document.getElementById("itemWidth").value,
+            depth: document.getElementById("itemDepth").value,
+            height: document.getElementById("itemHeight").value,
+            mass: document.getElementById("itemMass").value,  // added last
+            priority: document.getElementById("itemPriority").value,
+            expiryDate: document.getElementById("expiryDate").value,
+            usageLimit: document.getElementById("usageLimit").value,
+            preferredZone: document.getElementById("preferredZone").value
+        };
+
+        const response = await fetch("http://127.0.0.1:8000/placement/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(itemData)
+        });
+
+        const data = await response.json();
+        placementData = data;
+        console.log(data);
+        // document.getElementById("message").innerText = `Stored Data: ${JSON.stringify(data, null, 2)}`;
+
+    }
+
+    async function place() {
+        const today = new Date().toISOString();
+        let requestPlaceData = {
+            itemId: placementData.placement.itemId,
+            userId: document.getElementById("userIdPlace").value,
+            timestamp: today,
+            containerId: placementData.placement.containerId,
+            position: placementData.placement.position
+        };
+
+        const response = await fetch("http://127.0.0.1:8000/place/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestPlaceData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById("authentication").innerText = "";
+            document.getElementById("placementResult").innerText = "Item successfully placed";
+            console.log(data);
+        } else {
+            document.getElementById("authentication").style.color = "#fc1010";
+            document.getElementById("authentication").innerText = `${data.message}`;
+            document.getElementById("placementResult").innerText = "Item NOT placed !";
+            console.log(data.storage);
+        }
+    }
+
+
+    async function addContainer() {
+        let containerData = {
+            containerId: document.getElementById("containerId").value,
+            zone: document.getElementById("contName").value,
+            width: document.getElementById("contWidth").value,
+            depth: document.getElementById("contDepth").value,
+            height: document.getElementById("contHeight").value,
+            ocupiedPlace: []
+        };
+
+        const response = await fetch("http://127.0.0.1:8000/addCont/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(containerData)
+        });
+
+        const data = await response.json();
+        console.log(data);
+    }
+
+
+    let searchData;
+
+    async function searchItem() {
+
+
+        document.getElementById("popupBox").style.display = "block";
+        document.getElementById("retrievalDetails").innerText = "Fetching data...";
+
+
+        let searchType = document.getElementById("searchType").value;
+        let searchQuery = document.getElementById("searchQuery").value;
+        // let searchData = searchQuery;
+        if (searchType == "id") {
+            searchQuery = "id" + "-" + searchQuery;
+        } else searchQuery = "nm" + "-" + searchQuery;
+
+        searchQuery = encodeURIComponent(searchQuery)
+
+        const response = await fetch(`http://127.0.0.1:8000/search/${searchQuery}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await response.json();
+        searchData = data.itemDetails;
+        console.log(data);
+
+
+        document.getElementById("retrievalDetails").innerText = JSON.stringify(data, null, 2);
+    }
+
+
+
+
+
+    function closePopup() {
+        document.getElementById("popupBox").style.display = "none";
+        document.getElementById("popupBox2").style.display = "none";
+    }
+
+
+
+
+    async function retrieve() {
+        const today = new Date().toISOString();
+        let retrieveReqData = {
+            itemId: searchData.itemId,
+            userId: document.getElementById("userIdRetrieve").value,
+            timestamp: today
+        };
+
+        const response = await fetch("http://127.0.0.1:8000/retrieve/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(retrieveReqData)
+        });
+
+        const data = await response.json();
+        console.log(data);
+    }
+
+
+    async function waste_identify() {
+        document.getElementById("popupBox2").style.display = "block";
+        document.getElementById("wasteDetails").innerText = "Fetching data...";
+
+        const response = await fetch("http://127.0.0.1:8000/waste_identify/");
+        const data = await response.json();
+        console.log(data);
+        document.getElementById("wasteDetails").innerText = JSON.stringify(data.wasteList, null, 2);
+    }
+
+
+
+    async function exportArrangementCsv() {
+        const response = await fetch("http://127.0.0.1:8000/export_arrangement_csv/");
+        const blob = await response.blob();
+
+        const now = new Date();
+        let filename = "Current_arrangement_" + String(now.getFullYear()) + String(now.getMonth() + 1) + String(now.getDate()) + "_" + String(now.getHours()) + String(now.getMinutes()) + String(now.getSeconds()) + ".csv";
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+    }
+
+
+    async function uploadItemCSV() {
+        const fileInput = document.getElementById("upload-item-CSV");
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        const response = await fetch("http://127.0.0.1:8000/upload_item_csv/", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+        console.log(result); // Shows CSV data in console
+    }
+
+
+    async function uploadContCSV() {
+        const fileInput = document.getElementById("upload-cont-CSV");
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+
+        const response = await fetch("http://127.0.0.1:8000/upload_cont_csv/", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+        console.log(result); // Shows CSV data in console
+    }
+
+
+    async function logFileCsv() {
+        let logDate = {
+            startDate: document.getElementById("logStartDate").value,
+            endDate: document.getElementById("logEndDate").value
+        }
+
+        const response = await fetch("http://127.0.0.1:8000/log_file_csv/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(logDate)
+        });
+
+        const blob = await response.blob();
+        const now = new Date();
+        let filename = "Logfile_" + String(now.getFullYear()) + String(now.getMonth() + 1) + String(now.getDate()) + "_" + String(now.getHours()) + String(now.getMinutes()) + String(now.getSeconds()) + ".csv";
+        
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+
+    }
+
+
+
+
+
+    // async function searchItem() {
+    //     let query = document.getElementById("searchQuery").value;
+    //     // const userId = document.getElementById("userIdInput").value;
+
+    //     const response = await fetch(`http://127.0.0.1:8000/get-user/${query}`);
+    //     const data = await response.json();
+    //     document.getElementById("searchResponse").innerText = JSON.stringify(data, null, 2);
+
+
+
+
+
+
+
+
+</script>
+
+</html>
